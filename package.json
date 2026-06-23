@@ -2,6 +2,9 @@
   "name": "recipe-ui",
   "type": "module",
   "scripts": {
-    "server": "node server/server.js"
+    "server": "node server/server.js",
+    "dev": "cd app && npm run dev",
+    "build": "cd app && npm run build",
+    "start": "npm run server && npm run dev"
   }
 }
