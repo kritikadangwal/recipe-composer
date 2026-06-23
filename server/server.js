@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { readFile, writeFile } from "fs/promises";
 
+const PORT = process.env.PORT || 4000;
 const storeFile = new URL("./store.json", import.meta.url);
 const store = await loadStore();
 const delay = () =>
@@ -55,4 +56,4 @@ createServer(async (req, res) => {
     await delay();
     res.writeHead(405).end();
   }
-}).listen(4000, () => console.log("listening on http://localhost:4000"));
+}).listen(PORT, () => console.log(`listening on http://localhost:${PORT}`));
