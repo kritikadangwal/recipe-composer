@@ -1,9 +1,18 @@
-import type { RecipeBook, Entry, FlatIngredient } from "../types/recipe";
+import type { RecipeBook, Entry, FlatIngredient, QtyUnit } from "../types/recipe";
 import { isRecipe } from "../types/recipe";
+
+/** Internal type used during recursive flattening */
+interface RawFlat {
+  id: string;
+  name: string;
+  qty: number;
+  unit?: string;
+  state?: string;
+}
 
 /**
  * Flatten a recipe into its raw (leaf) ingredients with total quantities.
- * Handles nested recipes by recursively expanding them.
+ * Same unit quantities are summed, different units are listed separately.
  * Detects circular references to prevent infinite loops.
  */
 export function flattenIngredients(
@@ -12,6 +21,46 @@ export function flattenIngredients(
   multiplier = 1,
   visited = new Set<string>()
 ): FlatIngredient[] {
+  const raw = flattenRaw(id, book, multiplier, visited);
+
+  // Group by id:state, then group quantities by unit within each
+  const grouped = new Map<string, FlatIngredient>();
+
+  for (const item of raw) {
+    const key = `${item.id}:${item.state ?? ""}`;
+    const existing = grouped.get(key);
+    if (existing) {
+      addQty(existing.quantities, item.qty, item.unit);
+    } else {
+      grouped.set(key, {
+        id: item.id,
+        name: item.name,
+        quantities: [{ qty: item.qty, unit: item.unit }],
+        state: item.state,
+      });
+    }
+  }
+
+  return Array.from(grouped.values());
+}
+
+/** Add qty to existing unit bucket or create a new one */
+function addQty(quantities: QtyUnit[], qty: number, unit?: string) {
+  const match = quantities.find((q) => (q.unit ?? "") === (unit ?? ""));
+  if (match) {
+    match.qty += qty;
+  } else {
+    quantities.push({ qty, unit });
+  }
+}
+
+/** Recursive helper that returns one entry per component occurrence */
+function flattenRaw(
+  id: string,
+  book: RecipeBook,
+  multiplier: number,
+  visited: Set<string>
+): RawFlat[] {
   const entry = book[id];
   if (!entry) return [];
 
@@ -19,35 +68,23 @@ export function flattenIngredients(
     return [{ id, name: entry.name, qty: multiplier }];
   }
 
-  if (visited.has(id)) return []; // circular reference guard
+  if (visited.has(id)) return [];
   visited.add(id);
 
-  const result = new Map<string, FlatIngredient>();
+  const result: RawFlat[] = [];
 
   for (const comp of entry.components) {
-    const children = flattenIngredients(
-      comp.id,
-      book,
-      comp.qty * multiplier,
-      new Set(visited)
-    );
-
+    const children = flattenRaw(comp.id, book, comp.qty * multiplier, new Set(visited));
     for (const child of children) {
-      const key = `${child.id}:${comp.state ?? child.state ?? ""}`;
-      const existing = result.get(key);
-      if (existing) {
-        existing.qty += child.qty;
-      } else {
-        result.set(key, {
-          ...child,
-          unit: comp.unit ?? child.unit,
-          state: comp.state ?? child.state,
-        });
-      }
+      result.push({
+        ...child,
+        unit: comp.unit ?? child.unit,
+        state: comp.state ?? child.state,
+      });
     }
   }
 
-  return Array.from(result.values());
+  return result;
 }
 
 /**

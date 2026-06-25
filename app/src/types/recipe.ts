@@ -34,11 +34,16 @@ export function isRecipe(entry: Entry): entry is Recipe {
   return "components" in entry && Array.isArray((entry as Recipe).components);
 }
 
-/** A flat ingredient with resolved total quantity */
+/** A quantity with its unit */
+export interface QtyUnit {
+  qty: number;
+  unit?: string;
+}
+
+/** A flat ingredient with resolved total quantities grouped by unit */
 export interface FlatIngredient {
   id: string;
   name: string;
-  qty: number;
-  unit?: string;
+  quantities: QtyUnit[];
   state?: string;
 }

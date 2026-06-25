@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import type { Entry, RecipeBook } from "../types/recipe";
 import { isRecipe } from "../types/recipe";
 import { flattenIngredients } from "../utils/recipeUtils";
 import { RecipeTree } from "./RecipeTree";
+import { FlatList } from "./FlatList";
 import defaultImage from "../assets/default-food.jpg";
 import "./RecipeDetail.css";
 
@@ -14,6 +16,7 @@ interface Props {
 }
 
 export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
+  const navigate = useNavigate();
   const recipe = isRecipe(entry);
   const flat = recipe ? flattenIngredients(id, book) : [];
 
@@ -32,11 +35,14 @@ export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
             <h2 className="detail-panel__title">{entry.name}</h2>
           </div>
           <div className="detail-panel__actions">
+            <button
+              className="btn btn--primary"
+              onClick={() => { onClose(); navigate(`/recipe/${id}`); }}
+            >
+              View Details
+            </button>
             <button className="btn btn--secondary" onClick={() => onEdit(id)}>
               Edit
-            </button>
-            <button className="btn-icon" onClick={onClose} aria-label="Close">
-              &times;
             </button>
           </div>
         </div>
@@ -79,23 +85,16 @@ export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
                   (all sub-recipes expanded)
                 </span>
               </h4>
-              <div className="flat-list">
-                {flat.map((item, i) => (
-                  <div key={i} className="flat-item">
-                    <span className="flat-item__name">{item.name}</span>
-                    <span className="flat-item__qty">{item.qty}{item.unit ? ` ${item.unit}` : ""}</span>
-                    {item.state && (
-                      <span className="tree-node__state">{item.state}</span>
-                    )}
-                  </div>
-                ))}
-                {flat.length === 0 && (
-                  <p className="detail-empty">No ingredients resolved.</p>
-                )}
-              </div>
+              <FlatList items={flat} />
             </div>
           </>
         )}
+
+        <div className="detail-panel__footer">
+          <button className="btn btn--secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

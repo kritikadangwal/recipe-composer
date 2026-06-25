@@ -31,37 +31,81 @@ const sampleBook: RecipeBook = {
 describe("flattenIngredients", () => {
   it("returns the ingredient itself for a leaf ingredient", () => {
     const result = flattenIngredients("flour", sampleBook);
-    expect(result).toEqual([{ id: "flour", name: "Flour", qty: 1 }]);
+    expect(result).toEqual([
+      { id: "flour", name: "Flour", quantities: [{ qty: 1 }] },
+    ]);
   });
 
   it("flattens a simple recipe into its ingredients", () => {
     const result = flattenIngredients("bread", sampleBook);
     expect(result).toHaveLength(2);
-    expect(result).toContainEqual({ id: "flour", name: "Flour", qty: 500 });
-    expect(result).toContainEqual({ id: "water", name: "Water", qty: 300 });
+    const flour = result.find((r) => r.id === "flour");
+    const water = result.find((r) => r.id === "water");
+    expect(flour?.quantities).toEqual([{ qty: 500 }]);
+    expect(water?.quantities).toEqual([{ qty: 300 }]);
   });
 
   it("flattens a nested recipe recursively", () => {
     const result = flattenIngredients("egg-sandwich", sampleBook);
     expect(result).toHaveLength(3);
-    expect(result).toContainEqual({ id: "flour", name: "Flour", qty: 1000 }); // 500 * 2
-    expect(result).toContainEqual({ id: "water", name: "Water", qty: 600 }); // 300 * 2
-    expect(result).toContainEqual({
-      id: "egg",
-      name: "Egg",
-      qty: 1,
-      state: "fried",
-    });
+    const flour = result.find((r) => r.id === "flour");
+    const water = result.find((r) => r.id === "water");
+    const egg = result.find((r) => r.id === "egg");
+    expect(flour?.quantities).toEqual([{ qty: 1000 }]); // 500 * 2
+    expect(water?.quantities).toEqual([{ qty: 600 }]); // 300 * 2
+    expect(egg?.quantities).toEqual([{ qty: 1 }]);
+    expect(egg?.state).toBe("fried");
   });
 
   it("applies multiplier correctly", () => {
     const result = flattenIngredients("bread", sampleBook, 3);
-    expect(result).toContainEqual({ id: "flour", name: "Flour", qty: 1500 });
-    expect(result).toContainEqual({ id: "water", name: "Water", qty: 900 });
+    const flour = result.find((r) => r.id === "flour");
+    const water = result.find((r) => r.id === "water");
+    expect(flour?.quantities).toEqual([{ qty: 1500 }]);
+    expect(water?.quantities).toEqual([{ qty: 900 }]);
   });
 
   it("returns empty array for missing id", () => {
     expect(flattenIngredients("nonexistent", sampleBook)).toEqual([]);
+  });
+
+  it("groups different units under the same ingredient", () => {
+    const book: RecipeBook = {
+      water: { name: "Water", units: ["ml", "cup"] },
+      bread: {
+        name: "Bread",
+        components: [{ id: "water", qty: 300, unit: "ml" }],
+      },
+      sandwich: {
+        name: "Sandwich",
+        components: [
+          { id: "bread", qty: 2 },
+          { id: "water", qty: 1, unit: "cup" },
+        ],
+      },
+    };
+    const result = flattenIngredients("sandwich", book);
+    expect(result).toHaveLength(1); // one water entry
+    const water = result[0];
+    expect(water.id).toBe("water");
+    expect(water.quantities).toContainEqual({ qty: 600, unit: "ml" });
+    expect(water.quantities).toContainEqual({ qty: 1, unit: "cup" });
+  });
+
+  it("sums same-unit quantities together", () => {
+    const book: RecipeBook = {
+      salt: { name: "Salt", units: ["g"] },
+      mix: {
+        name: "Mix",
+        components: [
+          { id: "salt", qty: 5, unit: "g" },
+          { id: "salt", qty: 3, unit: "g" },
+        ],
+      },
+    };
+    const result = flattenIngredients("mix", book);
+    expect(result).toHaveLength(1);
+    expect(result[0].quantities).toEqual([{ qty: 8, unit: "g" }]);
   });
 
   it("handles circular references without infinite loop", () => {
@@ -73,7 +117,7 @@ describe("flattenIngredients", () => {
     expect(result).toEqual([]);
   });
 
-  it("aggregates duplicate ingredients", () => {
+  it("aggregates duplicate ingredients without units", () => {
     const book: RecipeBook = {
       salt: { name: "Salt" },
       mix: {
@@ -85,7 +129,8 @@ describe("flattenIngredients", () => {
       },
     };
     const result = flattenIngredients("mix", book);
-    expect(result).toEqual([{ id: "salt", name: "Salt", qty: 8 }]);
+    expect(result).toHaveLength(1);
+    expect(result[0].quantities).toEqual([{ qty: 8 }]);
   });
 });
 
