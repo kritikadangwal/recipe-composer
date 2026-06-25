@@ -82,6 +82,8 @@ Open [http://localhost:5173](http://localhost:5173). Import `task/recipes.json` 
 cd app && npm test
 ```
 
+<img width="1888" height="858" alt="image" src="https://github.com/user-attachments/assets/446290b2-aec4-49ca-a6dd-af6f72c70e4d" />
+
 **72 tests** across 10 files:
 
 | File | Tests | Covers |
