@@ -2,6 +2,7 @@ import type { Entry, RecipeBook } from "../types/recipe";
 import { isRecipe } from "../types/recipe";
 import { flattenIngredients } from "../utils/recipeUtils";
 import { RecipeTree } from "./RecipeTree";
+import defaultImage from "../assets/default-food.jpg";
 import "./RecipeDetail.css";
 
 interface Props {
@@ -19,6 +20,10 @@ export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
   return (
     <div className="detail-overlay" onClick={onClose}>
       <div className="detail-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="detail-banner">
+          <img src={entry.image || defaultImage} alt={entry.name} className="detail-banner__image" />
+          <div className="detail-banner__fade" />
+        </div>
         <div className="detail-panel__header">
           <div>
             <span className={`recipe-card__badge ${recipe ? "recipe-card__badge--recipe" : "recipe-card__badge--ingredient"}`}>

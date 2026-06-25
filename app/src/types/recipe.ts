@@ -9,6 +9,7 @@ export interface Component {
 /** Base fields shared by every entry */
 interface EntryBase {
   name: string;
+  image?: string;
 }
 
 /** An ingredient has no components but may list possible states and units */

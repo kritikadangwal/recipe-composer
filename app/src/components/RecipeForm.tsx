@@ -21,6 +21,7 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
     existing && isRecipe(existing) ? "recipe" : "ingredient"
   );
   const [name, setName] = useState(existing?.name ?? "");
+  const [image, setImage] = useState(existing?.image ?? "");
   const [states, setStates] = useState<string[]>(
     existing && !isRecipe(existing) ? existing.states ?? [] : []
   );
@@ -107,11 +108,13 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
 
     if (type === "ingredient") {
       const entry: Ingredient = { name: name.trim() };
+      if (image.trim()) entry.image = image.trim();
       if (states.length > 0) entry.states = states;
       if (units.length > 0) entry.units = units;
       onSave(id, entry);
     } else {
       const entry: Recipe = { name: name.trim(), components };
+      if (image.trim()) entry.image = image.trim();
       onSave(id, entry);
     }
   }
@@ -166,6 +169,28 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
             />
             {!isEdit && name && (
               <span className="form-hint">ID: {id}</span>
+            )}
+          </div>
+
+          {/* Image URL */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="entry-image">Image URL (optional)</label>
+            <input
+              id="entry-image"
+              className="form-input"
+              type="url"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              placeholder="https://example.com/photo.jpg"
+            />
+            {image && (
+              <img
+                src={image}
+                alt="Preview"
+                className="form-image-preview"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                onLoad={(e) => { (e.target as HTMLImageElement).style.display = "block"; }}
+              />
             )}
           </div>
 

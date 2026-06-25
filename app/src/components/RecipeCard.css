@@ -2,7 +2,7 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 20px;
+  overflow: hidden;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
 }
@@ -10,6 +10,34 @@
 .recipe-card:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
+}
+
+.recipe-card__image-wrap {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+}
+
+.recipe-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recipe-card__image-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 30%,
+    rgba(255, 255, 255, 0.6) 70%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  pointer-events: none;
+}
+
+.recipe-card__content {
+  padding: 16px 20px 20px;
 }
 
 .recipe-card__header {
