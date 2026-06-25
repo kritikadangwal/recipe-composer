@@ -121,14 +121,11 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
 
   return (
     <div className="detail-overlay" onClick={onCancel}>
-      <div className="detail-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="detail-panel__header">
+      <div className="detail-panel form-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="form-panel__header">
           <h2 className="detail-panel__title">
             {isEdit ? `Edit "${existing?.name}"` : "Create New Entry"}
           </h2>
-          <button className="btn-icon" onClick={onCancel} aria-label="Close">
-            &times;
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="form">
@@ -347,7 +344,7 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                       onClick={() => removeComponent(i)}
                       aria-label="Remove component"
                     >
-                      &times;
+                      &#128465;
                     </button>
                   </div>
                 );
