@@ -8,14 +8,14 @@ import { isRecipe } from "./types/recipe";
 import type { Entry } from "./types/recipe";
 import "./App.css";
 
-type Filter = "all" | "recipes" | "ingredients";
+type Filter = "recipes" | "ingredients";
 
 function App() {
   const { book, loading, error, saveEntry, deleteEntry, importBook } =
     useRecipeBook();
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("recipes");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | undefined>(undefined);
   const [showForm, setShowForm] = useState(false);
@@ -23,9 +23,7 @@ function App() {
   const entries = useMemo(() => {
     return Object.entries(book)
       .filter(([, entry]) => {
-        if (filter === "recipes" && !isRecipe(entry)) return false;
-        if (filter === "ingredients" && isRecipe(entry)) return false;
-        return true;
+        return filter === "recipes" ? isRecipe(entry) : !isRecipe(entry);
       })
       .filter(([id, entry]) => {
         if (!search) return true;
@@ -34,12 +32,7 @@ function App() {
           entry.name.toLowerCase().includes(q) || id.toLowerCase().includes(q)
         );
       })
-      .sort(([, a], [, b]) => {
-        const aIsRecipe = isRecipe(a);
-        const bIsRecipe = isRecipe(b);
-        if (aIsRecipe !== bIsRecipe) return aIsRecipe ? -1 : 1;
-        return a.name.localeCompare(b.name);
-      });
+      .sort(([, a], [, b]) => a.name.localeCompare(b.name));
   }, [book, search, filter]);
 
   const counts = useMemo(() => {
@@ -129,17 +122,15 @@ function App() {
           aria-label="Search"
         />
         <div className="filter-group">
-          {(["all", "recipes", "ingredients"] as Filter[]).map((f) => (
+          {(["recipes", "ingredients"] as Filter[]).map((f) => (
             <button
               key={f}
               className={`filter-btn ${filter === f ? "filter-btn--active" : ""}`}
               onClick={() => setFilter(f)}
             >
-              {f === "all"
-                ? `All (${counts.total})`
-                : f === "recipes"
-                  ? `Recipes (${counts.recipes})`
-                  : `Ingredients (${counts.ingredients})`}
+              {f === "recipes"
+                ? `Recipes (${counts.recipes})`
+                : `Ingredients (${counts.ingredients})`}
             </button>
           ))}
         </div>
