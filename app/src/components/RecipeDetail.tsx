@@ -47,6 +47,17 @@ export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
           </div>
         )}
 
+        {!recipe && entry.units && entry.units.length > 0 && (
+          <div className="detail-section">
+            <h4 className="detail-section__title">Allowed Units</h4>
+            <div className="recipe-card__states">
+              {entry.units.map((u) => (
+                <span key={u} className="unit-pill">{u}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {recipe && (
           <>
             <div className="detail-section">

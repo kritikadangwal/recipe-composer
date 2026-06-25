@@ -44,6 +44,13 @@ export function RecipeCard({ id, entry, book, onSelect, onEdit, onDelete }: Prop
           ))}
         </div>
       )}
+      {!recipe && entry.units && entry.units.length > 0 && (
+        <div className="recipe-card__states">
+          {entry.units.map((u) => (
+            <span key={u} className="unit-pill">{u}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

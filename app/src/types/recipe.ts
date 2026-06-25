@@ -11,9 +11,10 @@ interface EntryBase {
   name: string;
 }
 
-/** An ingredient has no components but may list possible states */
+/** An ingredient has no components but may list possible states and units */
 export interface Ingredient extends EntryBase {
   states?: string[];
+  units?: string[];
 }
 
 /** A recipe has at least one component */

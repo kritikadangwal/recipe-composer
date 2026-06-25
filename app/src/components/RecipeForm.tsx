@@ -25,6 +25,10 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
     existing && !isRecipe(existing) ? existing.states ?? [] : []
   );
   const [stateInput, setStateInput] = useState("");
+  const [units, setUnits] = useState<string[]>(
+    existing && !isRecipe(existing) ? existing.units ?? [] : []
+  );
+  const [unitInput, setUnitInput] = useState("");
   const [components, setComponents] = useState<Component[]>(
     existing && isRecipe(existing) ? existing.components : []
   );
@@ -48,6 +52,18 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
 
   function removeState(s: string) {
     setStates(states.filter((st) => st !== s));
+  }
+
+  function addUnit() {
+    const trimmed = unitInput.trim().toLowerCase();
+    if (trimmed && !units.includes(trimmed)) {
+      setUnits([...units, trimmed]);
+      setUnitInput("");
+    }
+  }
+
+  function removeUnit(u: string) {
+    setUnits(units.filter((ut) => ut !== u));
   }
 
   function addComponent() {
@@ -92,6 +108,7 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
     if (type === "ingredient") {
       const entry: Ingredient = { name: name.trim() };
       if (states.length > 0) entry.states = states;
+      if (units.length > 0) entry.units = units;
       onSave(id, entry);
     } else {
       const entry: Recipe = { name: name.trim(), components };
@@ -191,6 +208,45 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
             </div>
           )}
 
+          {/* Units (ingredient only) */}
+          {type === "ingredient" && (
+            <div className="form-group">
+              <label className="form-label">Allowed Units</label>
+              <div className="states-input-row">
+                <input
+                  className="form-input"
+                  type="text"
+                  value={unitInput}
+                  onChange={(e) => setUnitInput(e.target.value)}
+                  placeholder="e.g. g, kg, cup"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addUnit();
+                    }
+                  }}
+                />
+                <button type="button" className="btn btn--secondary" onClick={addUnit}>
+                  Add
+                </button>
+              </div>
+              {units.length > 0 && (
+                <div className="recipe-card__states" style={{ marginTop: 8 }}>
+                  {units.map((u) => (
+                    <span
+                      key={u}
+                      className="unit-pill unit-pill--removable"
+                      onClick={() => removeUnit(u)}
+                      title="Click to remove"
+                    >
+                      {u} &times;
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Components (recipe only) */}
           {type === "recipe" && (
             <div className="form-group">
@@ -199,13 +255,15 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                 const compEntry = book[comp.id];
                 const hasStates =
                   compEntry && !isRecipe(compEntry) && compEntry.states?.length;
+                const hasUnits =
+                  compEntry && !isRecipe(compEntry) && compEntry.units?.length;
 
                 return (
                   <div key={i} className="component-row">
                     <select
                       className="form-select"
                       value={comp.id}
-                      onChange={(e) => updateComponent(i, { id: e.target.value, state: undefined })}
+                      onChange={(e) => updateComponent(i, { id: e.target.value, state: undefined, unit: undefined })}
                     >
                       {availableComponents.map(([key, entry]) => (
                         <option key={key} value={key}>
@@ -223,25 +281,23 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                       }
                       aria-label="Quantity"
                     />
-                    <select
-                      className="form-select form-select--unit"
-                      value={comp.unit ?? ""}
-                      onChange={(e) =>
-                        updateComponent(i, { unit: e.target.value || undefined })
-                      }
-                      aria-label="Unit"
-                    >
-                      <option value="">—</option>
-                      <option value="g">g</option>
-                      <option value="kg">kg</option>
-                      <option value="ml">ml</option>
-                      <option value="L">L</option>
-                      <option value="tsp">tsp</option>
-                      <option value="tbsp">tbsp</option>
-                      <option value="cup">cup</option>
-                      <option value="pc">pc</option>
-                      <option value="slice">slice</option>
-                    </select>
+                    {hasUnits && (
+                      <select
+                        className="form-select form-select--unit"
+                        value={comp.unit ?? ""}
+                        onChange={(e) =>
+                          updateComponent(i, { unit: e.target.value || undefined })
+                        }
+                        aria-label="Unit"
+                      >
+                        <option value="">—</option>
+                        {(compEntry as { units: string[] }).units.map((u) => (
+                          <option key={u} value={u}>
+                            {u}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {hasStates && (
                       <select
                         className="form-select form-select--state"
