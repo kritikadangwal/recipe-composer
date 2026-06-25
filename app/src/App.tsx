@@ -1,8 +1,10 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useRecipeBook } from "./hooks/useRecipeBook";
 import { RecipeCard } from "./components/RecipeCard";
 import { RecipeDetail } from "./components/RecipeDetail";
 import { RecipeForm } from "./components/RecipeForm";
+import { RecipePage } from "./components/RecipePage";
 import { ImportExport } from "./components/ImportExport";
 import { Toast } from "./components/Toast";
 import type { ToastType } from "./components/Toast";
@@ -13,6 +15,7 @@ import "./App.css";
 type Filter = "recipes" | "ingredients";
 
 function App() {
+  const navigate = useNavigate();
   const { book, loading, error, saveEntry, deleteEntry, importBook } =
     useRecipeBook();
 
@@ -64,6 +67,7 @@ function App() {
     setEditId(id);
     setShowForm(true);
     setSelectedId(null);
+    navigate("/");
   }
 
   function handleCreate() {
@@ -118,7 +122,7 @@ function App() {
     );
   }
 
-  return (
+  const listView = (
     <div className="app">
       <header className="app-header">
         <div className="app-header__left">
@@ -137,7 +141,7 @@ function App() {
         <input
           className="search-input"
           type="text"
-          placeholder="Search recipes and ingredients..."
+          placeholder={`Search ${filter}...`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search"
@@ -215,6 +219,15 @@ function App() {
           }}
         />
       )}
+    </div>
+  );
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={listView} />
+        <Route path="/recipe/:id" element={<RecipePage book={book} onEdit={handleEdit} />} />
+      </Routes>
 
       {toast && (
         <Toast
@@ -223,7 +236,7 @@ function App() {
           onClose={() => setToast(null)}
         />
       )}
-    </div>
+    </>
   );
 }
 
