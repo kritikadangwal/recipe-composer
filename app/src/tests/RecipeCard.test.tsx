@@ -145,6 +145,59 @@ describe("RecipeCard", () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it("shows unit pills for ingredients with units", () => {
+    const unitBook: RecipeBook = {
+      flour: { name: "Flour", units: ["g", "kg", "cup"] },
+    };
+    render(
+      <RecipeCard
+        id="flour"
+        entry={unitBook.flour}
+        book={unitBook}
+        onSelect={noop}
+        onEdit={noop}
+        onDelete={noop}
+      />
+    );
+    expect(screen.getByText("g")).toBeInTheDocument();
+    expect(screen.getByText("kg")).toBeInTheDocument();
+    expect(screen.getByText("cup")).toBeInTheDocument();
+  });
+
+  it("shows default image when no image provided", () => {
+    render(
+      <RecipeCard
+        id="flour"
+        entry={book.flour}
+        book={book}
+        onSelect={noop}
+        onEdit={noop}
+        onDelete={noop}
+      />
+    );
+    const img = screen.getByAltText("Flour") as HTMLImageElement;
+    expect(img).toBeInTheDocument();
+    expect(img.src).toContain("default-food");
+  });
+
+  it("shows custom image when provided", () => {
+    const imgBook: RecipeBook = {
+      cake: { name: "Cake", image: "https://example.com/cake.jpg", components: [] },
+    };
+    render(
+      <RecipeCard
+        id="cake"
+        entry={imgBook.cake}
+        book={imgBook}
+        onSelect={noop}
+        onEdit={noop}
+        onDelete={noop}
+      />
+    );
+    const img = screen.getByAltText("Cake") as HTMLImageElement;
+    expect(img.src).toBe("https://example.com/cake.jpg");
+  });
+
   it("uses singular 'component' for single-component recipe", () => {
     const singleBook: RecipeBook = {
       salt: { name: "Salt" },
