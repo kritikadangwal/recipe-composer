@@ -14,7 +14,9 @@ interface UseRecipeBookReturn {
   reload: () => Promise<void>;
 }
 
-export function useRecipeBook(): UseRecipeBookReturn {
+export type { UseRecipeBookReturn };
+
+export function useRecipeBookStore(): UseRecipeBookReturn {
   const [book, setBook] = useState<RecipeBook>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

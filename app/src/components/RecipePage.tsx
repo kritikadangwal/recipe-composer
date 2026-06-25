@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import type { RecipeBook } from "../types/recipe";
+import { useRecipeBook } from "../context/RecipeBookContext";
 import { isRecipe } from "../types/recipe";
 import { flattenIngredients } from "../utils/recipeUtils";
 import { RecipeTree } from "./RecipeTree";
@@ -7,12 +7,8 @@ import { FlatList } from "./FlatList";
 import defaultImage from "../assets/default-food.jpg";
 import "./RecipePage.css";
 
-interface Props {
-  book: RecipeBook;
-  onEdit: (id: string) => void;
-}
-
-export function RecipePage({ book, onEdit }: Props) {
+export function RecipePage() {
+  const { book } = useRecipeBook();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -58,7 +54,7 @@ export function RecipePage({ book, onEdit }: Props) {
             </span>
             <h1 className="recipe-page__title">{entry.name}</h1>
           </div>
-          <button className="btn btn--secondary" onClick={() => onEdit(id)}>
+          <button className="btn btn--secondary" onClick={() => navigate("/")}>
             Edit
           </button>
         </div>
