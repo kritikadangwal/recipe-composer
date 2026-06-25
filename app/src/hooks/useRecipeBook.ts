@@ -22,24 +22,31 @@ export function useRecipeBook(): UseRecipeBookReturn {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    try {
-      const data = await api.get<RecipeBook>(STORE_KEY);
-      setBook(data ?? {});
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load recipes");
-    } finally {
-      setLoading(false);
+
+    const result = await api.get<RecipeBook>(STORE_KEY);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setBook(result.data ?? {});
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const persist = useCallback(async (next: RecipeBook) => {
-    setBook(next);
-    await api.set(STORE_KEY, next);
-  }, []);
+  const persist = useCallback(
+    async (next: RecipeBook) => {
+      const result = await api.set(STORE_KEY, next);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setBook(next);
+      }
+    },
+    []
+  );
 
   const saveEntry = useCallback(
     async (id: string, entry: Entry) => {

@@ -17,29 +17,41 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 describe("api.get", () => {
-  it("returns parsed JSON on success", async () => {
+  it("returns data on success", async () => {
+    // arrange
     mockFetch.mockReturnValue(jsonResponse({ name: "Flour" }));
+
+    // act
     const result = await api.get("flour");
-    expect(result).toEqual({ name: "Flour" });
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("/flour"),
-      expect.objectContaining({ method: "GET" })
-    );
+
+    // assert
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ name: "Flour" });
   });
 
-  it("returns null on 404", async () => {
+  it("returns null data on 404 without error", async () => {
     mockFetch.mockReturnValue(
       Promise.resolve({ ok: false, status: 404 })
     );
     const result = await api.get("missing");
-    expect(result).toBeNull();
+    expect(result.error).toBeNull();
+    expect(result.data).toBeNull();
   });
 
-  it("throws on server error", async () => {
+  it("returns error on server error", async () => {
     mockFetch.mockReturnValue(
       Promise.resolve({ ok: false, status: 500 })
     );
-    await expect(api.get("key")).rejects.toThrow("Server error: 500");
+    const result = await api.get("key");
+    expect(result.error).toBe("Server error: 500");
+    expect(result.data).toBeNull();
+  });
+
+  it("returns error on network failure", async () => {
+    mockFetch.mockReturnValue(Promise.reject(new Error("Failed to fetch")));
+    const result = await api.get("key");
+    expect(result.error).toBe("Failed to fetch");
+    expect(result.data).toBeNull();
   });
 });
 
@@ -48,7 +60,8 @@ describe("api.set", () => {
     mockFetch.mockReturnValue(
       Promise.resolve({ ok: true, status: 201, text: () => Promise.resolve("") })
     );
-    await api.set("recipe-book", { flour: { name: "Flour" } });
+    const result = await api.set("recipe-book", { flour: { name: "Flour" } });
+    expect(result.error).toBeNull();
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("/recipe-book"),
       expect.objectContaining({
@@ -58,12 +71,12 @@ describe("api.set", () => {
     );
   });
 
-  it("returns null on 201", async () => {
+  it("returns error on failure", async () => {
     mockFetch.mockReturnValue(
-      Promise.resolve({ ok: true, status: 201, text: () => Promise.resolve("") })
+      Promise.resolve({ ok: false, status: 500 })
     );
     const result = await api.set("key", "value");
-    expect(result).toBeNull();
+    expect(result.error).toBe("Server error: 500");
   });
 });
 
@@ -72,18 +85,20 @@ describe("api.del", () => {
     mockFetch.mockReturnValue(
       Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve("") })
     );
-    await api.del("key");
+    const result = await api.del("key");
+    expect(result.error).toBeNull();
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("/key"),
       expect.objectContaining({ method: "DELETE" })
     );
   });
 
-  it("returns null on 404 (already deleted)", async () => {
+  it("returns null data on 404 without error", async () => {
     mockFetch.mockReturnValue(
       Promise.resolve({ ok: false, status: 404 })
     );
     const result = await api.del("missing");
-    expect(result).toBeNull();
+    expect(result.error).toBeNull();
+    expect(result.data).toBeNull();
   });
 });

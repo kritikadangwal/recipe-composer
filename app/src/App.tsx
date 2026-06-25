@@ -1,9 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRecipeBook } from "./hooks/useRecipeBook";
 import { RecipeCard } from "./components/RecipeCard";
 import { RecipeDetail } from "./components/RecipeDetail";
 import { RecipeForm } from "./components/RecipeForm";
 import { ImportExport } from "./components/ImportExport";
+import { Toast } from "./components/Toast";
+import type { ToastType } from "./components/Toast";
 import { isRecipe } from "./types/recipe";
 import type { Entry } from "./types/recipe";
 import "./App.css";
@@ -19,6 +21,16 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | undefined>(undefined);
   const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+
+  const showToast = useCallback((message: string, type: ToastType = "info") => {
+    setToast({ message, type });
+  }, []);
+
+  // Show error toast when hook error changes
+  useEffect(() => {
+    if (error) showToast(error, "error");
+  }, [error, showToast]);
 
   const entries = useMemo(() => {
     return Object.entries(book)
@@ -61,19 +73,28 @@ function App() {
 
   async function handleSave(id: string, entry: Entry) {
     await saveEntry(id, entry);
-    setShowForm(false);
-    setEditId(undefined);
+    if (!error) {
+      setShowForm(false);
+      setEditId(undefined);
+      showToast(`"${entry.name}" saved successfully`, "success");
+    }
   }
 
   async function handleDelete(id: string) {
-    if (confirm(`Delete "${book[id]?.name}"? This cannot be undone.`)) {
+    const name = book[id]?.name;
+    if (confirm(`Delete "${name}"? This cannot be undone.`)) {
       await deleteEntry(id);
       if (selectedId === id) setSelectedId(null);
+      if (!error) showToast(`"${name}" deleted`, "info");
     }
   }
 
   async function handleImport(data: Record<string, Entry>) {
     await importBook(data);
+    if (!error) {
+      const count = Object.keys(data).length;
+      showToast(`Imported ${count} entries`, "success");
+    }
   }
 
   if (loading) {
@@ -192,6 +213,14 @@ function App() {
             setShowForm(false);
             setEditId(undefined);
           }}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
