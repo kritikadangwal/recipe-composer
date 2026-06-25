@@ -38,7 +38,11 @@ export function flattenIngredients(
       if (existing) {
         existing.qty += child.qty;
       } else {
-        result.set(key, { ...child, state: comp.state ?? child.state });
+        result.set(key, {
+          ...child,
+          unit: comp.unit ?? child.unit,
+          state: comp.state ?? child.state,
+        });
       }
     }
   }

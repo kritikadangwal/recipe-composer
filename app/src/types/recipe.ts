@@ -2,6 +2,7 @@
 export interface Component {
   id: string;
   qty: number;
+  unit?: string;
   state?: string;
 }
 
@@ -36,5 +37,6 @@ export interface FlatIngredient {
   id: string;
   name: string;
   qty: number;
+  unit?: string;
   state?: string;
 }

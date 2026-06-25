@@ -67,7 +67,7 @@ export function RecipeDetail({ id, entry, book, onClose, onEdit }: Props) {
                 {flat.map((item, i) => (
                   <div key={i} className="flat-item">
                     <span className="flat-item__name">{item.name}</span>
-                    <span className="flat-item__qty">{item.qty}</span>
+                    <span className="flat-item__qty">{item.qty}{item.unit ? ` ${item.unit}` : ""}</span>
                     {item.state && (
                       <span className="tree-node__state">{item.state}</span>
                     )}

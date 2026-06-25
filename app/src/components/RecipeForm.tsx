@@ -223,6 +223,25 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                       }
                       aria-label="Quantity"
                     />
+                    <select
+                      className="form-select form-select--unit"
+                      value={comp.unit ?? ""}
+                      onChange={(e) =>
+                        updateComponent(i, { unit: e.target.value || undefined })
+                      }
+                      aria-label="Unit"
+                    >
+                      <option value="">—</option>
+                      <option value="g">g</option>
+                      <option value="kg">kg</option>
+                      <option value="ml">ml</option>
+                      <option value="L">L</option>
+                      <option value="tsp">tsp</option>
+                      <option value="tbsp">tbsp</option>
+                      <option value="cup">cup</option>
+                      <option value="pc">pc</option>
+                      <option value="slice">slice</option>
+                    </select>
                     {hasStates && (
                       <select
                         className="form-select form-select--state"

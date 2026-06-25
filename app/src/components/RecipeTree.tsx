@@ -7,11 +7,12 @@ interface Props {
   id: string;
   book: RecipeBook;
   qty?: number;
+  unit?: string;
   state?: string;
   depth?: number;
 }
 
-export function RecipeTree({ id, book, qty, state, depth = 0 }: Props) {
+export function RecipeTree({ id, book, qty, unit, state, depth = 0 }: Props) {
   const entry = book[id];
   const [expanded, setExpanded] = useState(depth < 2);
 
@@ -37,7 +38,7 @@ export function RecipeTree({ id, book, qty, state, depth = 0 }: Props) {
         )}
         {!recipe && <span className="tree-node__leaf">&#9679;</span>}
         <span className="tree-node__name">{entry.name}</span>
-        {qty !== undefined && <span className="tree-node__qty">&times;{qty}</span>}
+        {qty !== undefined && <span className="tree-node__qty">{qty}{unit ? ` ${unit}` : ""}</span>}
         {state && <span className="tree-node__state">{state}</span>}
       </div>
       {recipe && expanded && (
@@ -48,6 +49,7 @@ export function RecipeTree({ id, book, qty, state, depth = 0 }: Props) {
               id={comp.id}
               book={book}
               qty={comp.qty}
+              unit={comp.unit}
               state={comp.state}
               depth={depth + 1}
             />
