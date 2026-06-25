@@ -31,7 +31,7 @@ export function RecipeCard({ id, entry, book, onSelect, onEdit, onDelete }: Prop
               &#9998;
             </button>
             <button className="btn-icon btn-icon--danger" onClick={() => onDelete(id)} title="Delete" aria-label={`Delete ${entry.name}`}>
-              &times;
+              &#128465;
             </button>
           </div>
         </div>

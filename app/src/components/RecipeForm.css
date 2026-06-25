@@ -1,15 +1,24 @@
 .form-panel {
+  padding: 0 !important;
+}
+
+.form-panel .form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form-panel__body {
+  flex: 1;
+  overflow-y: auto;
   padding: 32px;
-}
-
-.form-panel__header {
-  margin-bottom: 24px;
-}
-
-.form {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.form-panel__header {
+  margin-bottom: 4px;
 }
 
 .form-group {
@@ -43,7 +52,8 @@
 }
 
 .form-input--qty {
-  width: 80px;
+  width: 70px;
+  flex: none;
   text-align: center;
 }
 
@@ -75,7 +85,8 @@
 }
 
 .form-select--state {
-  flex: 0.6;
+  width: 90px;
+  flex: none;
 }
 
 .form-select--unit {
@@ -102,8 +113,9 @@
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding-top: 12px;
+  padding: 16px 32px;
   border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .toggle-group {
@@ -153,6 +165,12 @@
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
+}
+
+.form-select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f1f5f9;
 }
 
 .btn {

@@ -67,14 +67,14 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
     setUnits(units.filter((ut) => ut !== u));
   }
 
+  const unusedComponents = useMemo(() => {
+    const usedIds = new Set(components.map((c) => c.id));
+    return availableComponents.filter(([key]) => !usedIds.has(key));
+  }, [availableComponents, components]);
+
   function addComponent() {
-    if (availableComponents.length === 0) return;
-    const firstAvailable = availableComponents.find(
-      ([key]) => !components.some((c) => c.id === key)
-    );
-    if (firstAvailable) {
-      setComponents([...components, { id: firstAvailable[0], qty: 1 }]);
-    }
+    if (unusedComponents.length === 0) return;
+    setComponents([...components, { id: unusedComponents[0][0], qty: 1 }]);
   }
 
   function updateComponent(index: number, updates: Partial<Component>) {
@@ -122,13 +122,13 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
   return (
     <div className="detail-overlay" onClick={onCancel}>
       <div className="detail-panel form-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="form-panel__header">
-          <h2 className="detail-panel__title">
-            {isEdit ? `Edit "${existing?.name}"` : "Create New Entry"}
-          </h2>
-        </div>
-
         <form onSubmit={handleSubmit} className="form">
+        <div className="form-panel__body">
+          <div className="form-panel__header">
+            <h2 className="detail-panel__title">
+              {isEdit ? `Edit "${existing?.name}"` : "Create New Entry"}
+            </h2>
+          </div>
           {/* Type toggle */}
           {!isEdit && (
             <div className="form-group">
@@ -287,11 +287,13 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                       value={comp.id}
                       onChange={(e) => updateComponent(i, { id: e.target.value, state: undefined, unit: undefined })}
                     >
-                      {availableComponents.map(([key, entry]) => (
-                        <option key={key} value={key}>
-                          {entry.name} {isRecipe(entry) ? "(recipe)" : ""}
-                        </option>
-                      ))}
+                      {availableComponents
+                        .filter(([key]) => key === comp.id || !components.some((c, j) => j !== i && c.id === key))
+                        .map(([key, entry]) => (
+                          <option key={key} value={key}>
+                            {entry.name} {isRecipe(entry) ? "(recipe)" : ""}
+                          </option>
+                        ))}
                     </select>
                     <input
                       className="form-input form-input--qty"
@@ -303,41 +305,37 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                       }
                       aria-label="Quantity"
                     />
-                    {hasUnits && (
-                      <select
-                        className="form-select form-select--unit"
-                        value={comp.unit ?? ""}
-                        onChange={(e) =>
-                          updateComponent(i, { unit: e.target.value || undefined })
-                        }
-                        aria-label="Unit"
-                      >
-                        <option value="">—</option>
-                        {(compEntry as { units: string[] }).units.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {hasStates && (
-                      <select
-                        className="form-select form-select--state"
-                        value={comp.state ?? ""}
-                        onChange={(e) =>
-                          updateComponent(i, {
-                            state: e.target.value || undefined,
-                          })
-                        }
-                      >
-                        <option value="">Any state</option>
-                        {(compEntry as { states: string[] }).states.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                    <select
+                      className="form-select form-select--unit"
+                      value={comp.unit ?? ""}
+                      onChange={(e) =>
+                        updateComponent(i, { unit: e.target.value || undefined })
+                      }
+                      aria-label="Unit"
+                      disabled={!hasUnits}
+                    >
+                      <option value="">—</option>
+                      {hasUnits &&
+                        (compEntry as { units: string[] }).units.map((u) => (
+                          <option key={u} value={u}>{u}</option>
+                        ))
+                      }
+                    </select>
+                    <select
+                      className="form-select form-select--state"
+                      value={comp.state ?? ""}
+                      onChange={(e) =>
+                        updateComponent(i, { state: e.target.value || undefined })
+                      }
+                      disabled={!hasStates}
+                    >
+                      <option value="">—</option>
+                      {hasStates &&
+                        (compEntry as { states: string[] }).states.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))
+                      }
+                    </select>
                     <button
                       type="button"
                       className="btn-icon btn-icon--danger"
@@ -353,7 +351,7 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
                 type="button"
                 className="btn btn--secondary"
                 onClick={addComponent}
-                disabled={availableComponents.length === 0}
+                disabled={unusedComponents.length === 0}
               >
                 + Add Component
               </button>
@@ -361,15 +359,16 @@ export function RecipeForm({ book, editId, onSave, onCancel }: Props) {
           )}
 
           {error && <p className="form-error">{error}</p>}
+        </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn--secondary" onClick={onCancel}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn--primary">
-              {isEdit ? "Save Changes" : "Create"}
-            </button>
-          </div>
+        <div className="form-actions">
+          <button type="button" className="btn btn--secondary" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="submit" className="btn btn--primary">
+            {isEdit ? "Save Changes" : "Create"}
+          </button>
+        </div>
         </form>
       </div>
     </div>
