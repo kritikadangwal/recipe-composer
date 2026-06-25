@@ -5,6 +5,7 @@
     "server": "node server/server.js",
     "dev": "cd app && npm run dev",
     "build": "cd app && npm run build",
-    "start": "npm run server && npm run dev"
+    "start": "npm run server && npm run dev",
+    "test": "cd app && npm test"
   }
 }
