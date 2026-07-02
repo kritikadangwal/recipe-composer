@@ -2,8 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useRecipeBook } from "../context/RecipeBookContext";
 import { isRecipe } from "../types/recipe";
 import { flattenIngredients } from "../utils/recipeUtils";
-import { RecipeTree } from "./RecipeTree";
-import { FlatList } from "./FlatList";
+import { RecipeTree } from "../components/RecipeTree";
+import { FlatList } from "../components/FlatList";
 import defaultImage from "../assets/default-food.jpg";
 import "./RecipePage.css";
 

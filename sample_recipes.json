@@ -1,0 +1,73 @@
+{
+  "bread": {
+    "name": "Bread",
+    "components": [
+      {
+        "id": "flour",
+        "qty": 500,
+        "unit": "grams",
+        "state": "baker's"
+      },
+      {
+        "id": "water",
+        "qty": 300,
+        "unit": "ml"
+      }
+    ]
+  },
+  "egg-sandwich": {
+    "name": "Egg Sandwich",
+    "components": [
+      {
+        "id": "bread",
+        "qty": 3
+      },
+      {
+        "id": "egg",
+        "qty": 1,
+        "state": "fried"
+      },
+      {
+        "id": "water",
+        "qty": 1,
+        "unit": "ml"
+      },
+      {
+        "id": "flour",
+        "qty": 1,
+        "unit": "grams",
+        "state": "roasted"
+      }
+    ],
+    "image": "https://www.rachelcooks.com/wp-content/uploads/2023/01/egg-salad-1500-1-square.jpg"
+  },
+  "flour": {
+    "name": "Flour",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzQ_8j6NE79RAj_Z5FpkGAN-7l96-SbFSbCaY7tpE3UVb3jwsPJPeFJxo&s=10",
+    "states": [
+      "roasted",
+      "all purpose",
+      "baker's"
+    ],
+    "units": [
+      "cup",
+      "grams"
+    ]
+  },
+  "water": {
+    "name": "Water",
+    "units": [
+      "cup",
+      "ml"
+    ]
+  },
+  "egg": {
+    "name": "Egg",
+    "image": "https://media.istockphoto.com/id/520359926/vector/baking-ingredients-set.jpg?s=612x612&w=0&k=20&c=RhJh6dj5VpEKHQ1teVWrUMzPh58f0H6FnGLhFRHnYrg=",
+    "states": [
+      "raw",
+      "boiled",
+      "fried"
+    ]
+  }
+}

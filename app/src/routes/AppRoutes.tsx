@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { HomePage } from "../pages/HomePage";
-import { RecipePage } from "../components/RecipePage";
+import { RecipePage } from "../pages/RecipePage";
 
 export function AppRoutes() {
   return (
