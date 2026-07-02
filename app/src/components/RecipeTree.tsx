@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { RecipeBook, Component, Ingredient } from "../types/recipe";
+import type { RecipeBook, Component } from "../types/recipe";
 import { isRecipe } from "../types/recipe";
 import "./RecipeTree.css";
 
