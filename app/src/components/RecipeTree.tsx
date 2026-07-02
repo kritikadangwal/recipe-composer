@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { RecipeBook, Component } from "../types/recipe";
+import type { RecipeBook, Component, Ingredient } from "../types/recipe";
 import { isRecipe } from "../types/recipe";
 import "./RecipeTree.css";
 
@@ -13,12 +13,20 @@ interface Props {
 }
 
 export function RecipeTree({ id, book, qty, unit, state, depth = 0 }: Props) {
+  console.log("Rendering RecipeTree for id:", id, "depth:", depth);
   const entry = book[id];
+  console.log("Entry for id:", id, entry);
   const [expanded, setExpanded] = useState(depth < 2);
-
-  if (!entry) {
+  let isIngredientState = true;
+  if (entry && state && !isRecipe(entry)) {
+    isIngredientState = entry?.states?.includes(state) ?? false;
+  }
+  if (!entry || !isIngredientState) {
     return (
-      <div className="tree-node tree-node--missing" style={{ marginLeft: depth * 24 }}>
+      <div
+        className="tree-node tree-node--missing"
+        style={{ marginLeft: depth * 24 }}
+      >
         <span className="tree-node__icon">&#x26A0;</span>
         <span className="tree-node__name">{id}</span>
         <span className="tree-node__note">(missing)</span>
@@ -30,15 +38,25 @@ export function RecipeTree({ id, book, qty, unit, state, depth = 0 }: Props) {
 
   return (
     <div className="tree-node" style={{ marginLeft: depth * 24 }}>
-      <div className="tree-node__row" onClick={() => recipe && setExpanded(!expanded)}>
+      <div
+        className="tree-node__row"
+        onClick={() => recipe && setExpanded(!expanded)}
+      >
         {recipe && (
-          <span className={`tree-node__toggle ${expanded ? "tree-node__toggle--open" : ""}`}>
+          <span
+            className={`tree-node__toggle ${expanded ? "tree-node__toggle--open" : ""}`}
+          >
             &#9654;
           </span>
         )}
         {!recipe && <span className="tree-node__leaf">&#9679;</span>}
         <span className="tree-node__name">{entry.name}</span>
-        {qty !== undefined && <span className="tree-node__qty">{qty}{unit ? ` ${unit}` : ""}</span>}
+        {qty !== undefined && (
+          <span className="tree-node__qty">
+            {qty}
+            {unit ? ` ${unit}` : ""}
+          </span>
+        )}
         {state && <span className="tree-node__state">{state}</span>}
       </div>
       {recipe && expanded && (
